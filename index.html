@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3f5f8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>検定対策 Ver2.0</title>
+  <link rel="stylesheet" href="style.css?v=39">
+</head>
+<body>
+  <div id="drawerBackdrop" class="drawer-backdrop"></div>
+
+  <aside id="drawer" class="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="drawer-eyebrow">検定対策</div>
+        <h2>メニュー</h2>
+      </div>
+      <button id="closeDrawerButton" class="icon-button" aria-label="メニューを閉じる">×</button>
+    </div>
+
+    <nav class="drawer-nav">
+      <button data-route="home" data-menu-item="home">🏠 モード選択</button>
+      <button data-route="wordList" data-menu-item="wordList">📚 単語一覧</button>
+      <button data-route="history" data-menu-item="history">📊 学習履歴</button>
+      <button data-route="ranking" data-menu-item="ranking">🔥 苦手ランキング</button>
+      <button data-route="examDate" data-menu-item="examDate">📅 試験日の設定</button>
+      <button data-route="settings" data-menu-item="settings" data-menu-fixed="true">⚙️ 設定</button>
+    </nav>
+  </aside>
+
+  <main class="app-shell">
+    <section id="page-home" class="page">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">基本情報 科目A免除</div>
+          <h1>検定対策</h1>
+        </div>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="hero-card">
+        <div>
+          <span class="status-badge">Ver3.1-4</span>
+          <h2>学習モードを選択</h2>
+          <p>単語・計算・試験を、それぞれ専用画面で学習できます。</p>
+        </div>
+      </section>
+
+      <section id="homeExamCountdown" class="home-exam-card hidden" data-home-item="examCountdown">
+        <div>
+          <div class="home-card-label">📅 試験まで</div>
+          <div id="homeExamDays" class="home-large-value"></div>
+          <div id="homeExamDate" class="home-card-note"></div>
+        </div>
+        <button class="home-card-action" data-route="examDate">設定</button>
+      </section>
+
+      <section id="homeStatsGrid" class="home-dashboard-grid">
+        <article class="home-stat-card" data-home-item="progress">
+          <div class="home-card-label">📈 今日の進捗</div>
+          <div><span id="homeTodayTotal" class="home-large-value">0</span><span class="home-unit"> / 50問</span></div>
+          <div class="progress-track"><div id="homeProgressBar" class="progress-bar"></div></div>
+          <div id="homeTodayRate" class="home-card-note">正答率 0%</div>
+        </article>
+
+        <article class="home-stat-card" data-home-item="streak">
+          <div class="home-card-label">🔥 連続学習</div>
+          <div><span id="homeStreak" class="home-large-value">0</span><span class="home-unit">日</span></div>
+          <div class="home-card-note">毎日の積み重ね</div>
+        </article>
+      </section>
+
+      <section class="card recommended-section" data-home-item="recommended">
+        <div class="section-label">🎯 今日のおすすめ問題</div>
+        <button id="recommendedWordButton" class="recommend-card">
+          <span class="recommend-icon">📖</span>
+          <span class="recommend-copy">
+            <strong>単語</strong>
+            <small id="recommendedWordDetail">苦手や未回答から5問・約2分</small>
+          </span>
+          <span class="recommend-start">開始 ›</span>
+        </button>
+
+        <button id="recommendedCalculationButton" class="recommend-card">
+          <span class="recommend-icon">🧮</span>
+          <span class="recommend-copy">
+            <strong>計算</strong>
+            <small>公式と途中式を確認しながら練習</small>
+          </span>
+          <span class="recommend-start">開始 ›</span>
+        </button>
+      </section>
+
+      <section id="homeQuickGrid" class="home-dashboard-grid">
+        <button id="todayWrongButton" data-home-item="todayWrong" class="home-link-card">
+          <span class="home-card-label">❌ 今日間違えた</span>
+          <span><strong id="homeTodayWrong">0</strong>問</span>
+          <small>今日つまずいた問題を復習</small>
+        </button>
+
+        <button id="homeFavoriteButton" class="home-link-card" data-home-item="favorites">
+          <span class="home-card-label">⭐ お気に入り</span>
+          <span><strong id="homeFavoriteCount">0</strong>問</span>
+          <small>登録した問題だけ解く</small>
+        </button>
+      </section>
+
+      <section class="mode-grid" data-home-item="modes">
+        <button class="mode-card" data-route="word">
+          <span class="mode-icon">📖</span>
+          <span class="mode-copy">
+            <strong>単語</strong>
+            <small>四択・復習・単語一覧・分析</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+
+        <button class="mode-card" data-route="calculation">
+          <span class="mode-icon">🧮</span>
+          <span class="mode-copy">
+            <strong>計算</strong>
+            <small>四択・途中式メモ・公式・解説</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+
+        <button class="mode-card" data-route="exam">
+          <span class="mode-icon">📝</span>
+          <span class="mode-copy">
+            <strong>試験</strong>
+            <small>単語テストを設定して挑戦</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+      </section>
+    </section>
+
+    <section id="page-word" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="home" aria-label="戻る">←</button>
+        <h1 class="topbar-title">単語</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="examCountdownCard" class="exam-countdown-card hidden">
+        <div>
+          <div class="exam-countdown-label">試験まで</div>
+          <div id="examCountdownDays" class="exam-countdown-days"></div>
+          <div id="examCountdownDate" class="exam-countdown-date"></div>
+        </div>
+        <button class="secondary-button compact-secondary" data-route="examDate">試験日を変更</button>
+      </section>
+
+      <section id="resumeCard" class="card hidden">
+        <div class="section-label">前回の続き</div>
+        <h2 id="resumeTitle">続きから勉強</h2>
+        <p id="resumeDetail" class="muted-text"></p>
+        <div class="two-buttons">
+          <button id="resumeButton" class="primary-button">続きから</button>
+          <button id="restartButton" class="secondary-button no-margin">最初から</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">全分野</div>
+        <button id="startAllButton" class="list-button compact-button"><span>全分野ランダム問題</span><strong id="allRate">0%</strong></button>
+      </section>
+
+      <section class="card">
+        <div class="section-label">分野別ランダム問題</div>
+        <button class="list-button compact-button" data-start-category="ストラテジ系"><span>▶︎ ストラテジ系</span><strong id="strategyRate">0%</strong></button>
+        <button class="list-button compact-button" data-start-category="マネジメント系"><span>▶︎ マネジメント系</span><strong id="managementRate">0%</strong></button>
+        <button class="list-button compact-button" data-start-category="テクノロジ系"><span>▶︎ テクノロジ系</span><strong id="technologyRate">0%</strong></button>
+      </section>
+
+      <section class="card">
+        <div class="section-label">復習</div>
+        <button id="startWrongButton" class="list-button compact-button"><span>間違えた問題</span><strong id="wrongCount">0問</strong></button>
+        <button id="startFavoriteButton" class="list-button compact-button"><span>★ お気に入り問題</span><strong id="favoriteCount">0問</strong></button>
+      </section>
+
+      <section class="menu-list">
+        <button class="list-button" data-route="wordList">単語一覧 <span>›</span></button>
+        <button class="list-button" data-route="history">学習履歴 <span>›</span></button>
+        <button class="list-button" data-route="ranking">苦手ランキング <span>›</span></button>
+      </section>
+    </section>
+
+    <section id="page-quiz" class="page hidden">
+      <header class="topbar quiz-topbar">
+        <button id="quizBackButton" class="icon-button" aria-label="単語ホームへ戻る">←</button>
+        <div class="quiz-heading">
+          <span id="quizCategory" class="pill"></span>
+          <span id="quizProgress" class="progress-text"></span>
+        </div>
+        <button id="favoriteButton" class="icon-button favorite-button" aria-label="お気に入り">☆</button>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div id="quizQuestion" class="question-text"></div>
+        <div id="questionStats" class="question-stats"></div>
+        <div id="choiceArea" class="choice-area"></div>
+        <div id="answerResult" class="answer-result hidden"></div>
+        <button id="nextQuestionButton" class="primary-button hidden">次の問題へ</button>
+      </section>
+
+      <section class="card">
+        <div class="quiz-actions">
+          <button id="noteToggleButton" class="secondary-button no-margin">📝 この問題のメモ</button>
+        </div>
+        <div id="notePanel" class="note-panel hidden">
+          <textarea id="noteInput" class="note-input" rows="4" placeholder="覚え方や注意点を自由に記録"></textarea>
+          <button id="saveNoteButton" class="primary-button">メモを保存</button>
+          <p id="noteStatus" class="muted-text small-text"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="stats-row">
+          <div><strong id="sessionAnswered">0</strong><span>今回の解答</span></div>
+          <div><strong id="sessionCorrect">0</strong><span>今回の正解</span></div>
+          <div><strong id="sessionRate">0%</strong><span>正答率</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="page-calculation" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="home" aria-label="戻る">←</button>
+        <h1 class="topbar-title">計算</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="calcResumeCard" class="card hidden">
+        <div class="section-label">前回の続き</div>
+        <h2>続きから計算</h2>
+        <p id="calcResumeDetail" class="muted-text"></p>
+        <div class="two-buttons">
+          <button id="calcResumeButton" class="primary-button">続きから</button>
+          <button id="calcRestartButton" class="secondary-button no-margin">最初から</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">全問題</div>
+        <button id="calcStartAllButton" class="list-button compact-button">
+          <span>全計算問題ランダム</span><strong id="calcAllRate">0%</strong>
+        </button>
+      </section>
+
+      <section class="card">
+        <div class="section-label">分野別</div>
+        <button class="list-button compact-button" data-calc-topic="損益分岐点"><span>▶︎ 損益分岐点</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="工数"><span>▶︎ 工数・必要人数</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="確率"><span>▶︎ 確率</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="場合の数"><span>▶︎ 場合の数</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="稼働率"><span>▶︎ 稼働率</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="投資回収"><span>▶︎ 投資回収・ROI</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="CPU"><span>▶︎ CPU</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="通信"><span>▶︎ 通信</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="容量"><span>▶︎ データ容量</span><strong>0%</strong></button>
+        <button class="list-button compact-button" data-calc-topic="SQL"><span>▶︎ SQL</span><strong>0%</strong></button>
+      </section>
+
+      <section class="card">
+        <div class="section-label">復習</div>
+        <button id="calcStartWrongButton" class="list-button compact-button"><span>間違えた計算問題</span><strong id="calcWrongCount">0問</strong></button>
+        <button id="calcStartFavoriteButton" class="list-button compact-button"><span>★ お気に入り計算問題</span><strong id="calcFavoriteCount">0問</strong></button>
+      </section>
+
+      <section class="card">
+        <div class="section-label">Ver3.1 シードエンジン</div>
+        <div id="seedEngineStatus" class="engine-status"></div>
+        <button id="regenerateSeedSampleButton" class="secondary-button">サンプルコードを更新</button>
+      </section>
+
+      <section class="card calc-validation-card">
+        <div class="section-label">問題データ確認</div>
+        <p id="calcValidationText" class="muted-text small-text"></p>
+      </section>
+    </section>
+
+    <section id="page-calcQuiz" class="page hidden">
+      <header class="topbar quiz-topbar">
+        <button id="calcQuizBackButton" class="icon-button" aria-label="計算ホームへ戻る">←</button>
+        <div class="quiz-heading">
+          <span id="calcQuizTopic" class="pill"></span>
+          <span id="calcQuizProgress" class="progress-text"></span>
+        </div>
+        <button id="calcFavoriteButton" class="icon-button favorite-button" aria-label="お気に入り">☆</button>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div id="calcQuestionId" class="calc-question-id"></div>
+        <div id="calcQuestionSeed" class="calc-seed-info hidden"></div>
+        <div id="calcQuestion" class="question-text"></div>
+
+        <div class="calc-memo-area">
+          <label class="field-label" for="calcMemo">途中式・メモ</label>
+          <textarea id="calcMemo" class="note-input calc-memo" rows="6" placeholder="ここに自由に途中式を書けます"></textarea>
+          <button id="calcSaveMemoButton" class="secondary-button">メモを保存</button>
+          <p id="calcMemoStatus" class="muted-text small-text"></p>
+        </div>
+
+        <div id="calcChoiceArea" class="choice-area"></div>
+        <div id="calcAnswerResult" class="answer-result hidden"></div>
+        <button id="calcNextButton" class="primary-button hidden">次の問題へ</button>
+      </section>
+
+      <section class="card">
+        <div class="stats-row">
+          <div><strong id="calcSessionAnswered">0</strong><span>今回の解答</span></div>
+          <div><strong id="calcSessionCorrect">0</strong><span>今回の正解</span></div>
+          <div><strong id="calcSessionRate">0%</strong><span>正答率</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="page-exam" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="home" aria-label="戻る">←</button>
+        <h1 class="topbar-title">試験</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div class="section-label">試験モード</div>
+        <h2>テストを選択</h2>
+      </section>
+
+      <section class="mode-grid">
+        <button id="openWordExamButton" class="mode-card">
+          <span class="mode-icon">📖</span>
+          <span class="mode-copy">
+            <strong>単語テスト</strong>
+            <small>出題数・範囲・採点方法を設定</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+
+        <button id="openCalcExamButton" class="mode-card">
+          <span class="mode-icon">🧮</span>
+          <span class="mode-copy">
+            <strong>計算テスト</strong>
+            <small>出題数・範囲・採点方法を設定</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+
+        <button id="openComprehensiveExamButton" class="mode-card">
+          <span class="mode-icon">📚</span>
+          <span class="mode-copy">
+            <strong>総合テスト</strong>
+            <small>単語と計算を組み合わせて挑戦</small>
+          </span>
+          <span class="chevron">›</span>
+        </button>
+      </section>
+    </section>
+
+    
+    <section id="page-wordExamSetup" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">単語試験</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="wordExamResumeCard" class="card hidden">
+        <div class="section-label">前回の試験</div>
+        <h2>続きから再開できます</h2>
+        <p id="wordExamResumeDetail" class="muted-text"></p>
+        <div class="two-buttons">
+          <button id="resumeWordExamButton" class="primary-button">続きから</button>
+          <button id="discardWordExamButton" class="secondary-button no-margin">最初から設定</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題数</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="examCount" value="10" checked><span>10問</span></label>
+          <label class="exam-option"><input type="radio" name="examCount" value="20"><span>20問</span></label>
+          <label class="exam-option"><input type="radio" name="examCount" value="30"><span>30問</span></label>
+          <label class="exam-option"><input type="radio" name="examCount" value="50"><span>50問</span></label>
+          <label class="exam-option"><input type="radio" name="examCount" value="100"><span>100問</span></label>
+          <label class="exam-option"><input type="radio" name="examCount" value="custom"><span>自由入力</span></label>
+        </div>
+        <input id="customExamCount" class="field-input hidden" type="number" min="1" max="200" value="10" placeholder="1〜200">
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題範囲</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="examCategory" value="all" checked><span>全分野</span></label>
+          <label class="exam-option"><input type="radio" name="examCategory" value="ストラテジ系"><span>ストラテジ</span></label>
+          <label class="exam-option"><input type="radio" name="examCategory" value="マネジメント系"><span>マネジメント</span></label>
+          <label class="exam-option"><input type="radio" name="examCategory" value="テクノロジ系"><span>テクノロジ</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">採点方法</div>
+        <div class="exam-option-grid two-column-options">
+          <label class="exam-option"><input type="radio" name="examScoring" value="instant" checked><span>その場で採点</span></label>
+          <label class="exam-option"><input type="radio" name="examScoring" value="final"><span>最後にまとめて</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <button id="startWordExamButton" class="primary-button">試験を開始</button>
+        <p id="wordExamSetupStatus" class="muted-text small-text"></p>
+      </section>
+    </section>
+
+    <section id="page-wordExam" class="page hidden">
+      <header class="topbar quiz-topbar">
+        <button id="wordExamExitButton" class="icon-button" aria-label="試験を中断">←</button>
+        <div class="quiz-heading">
+          <span id="wordExamCategory" class="pill">単語試験</span>
+          <span id="wordExamProgress" class="progress-text"></span>
+        </div>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div id="wordExamQuestion" class="question-text"></div>
+        <div id="wordExamChoiceArea" class="choice-area"></div>
+        <div id="wordExamAnswerResult" class="answer-result hidden"></div>
+        <button id="wordExamNextButton" class="primary-button hidden">次の問題へ</button>
+      </section>
+
+      <section class="card">
+        <div class="stats-row exam-stats-row">
+          <div><strong id="wordExamAnswered">0</strong><span>解答済み</span></div>
+          <div><strong id="wordExamRemaining">0</strong><span>残り</span></div>
+          <div><strong id="wordExamCurrentRate">0%</strong><span>現在の正答率</span></div>
+          <div><strong id="wordExamElapsed">00:00</strong><span>経過時間</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="page-wordExamResult" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">試験結果</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="result-hero">
+        <div class="result-score" id="wordExamScore">0点</div>
+        <div id="wordExamRank" class="result-rank">ランク -</div>
+        <div class="result-summary" id="wordExamSummary"></div>
+        <div class="result-time" id="wordExamResultTime"></div>
+      </section>
+
+      <section class="history-grid">
+        <div class="history-stat"><b id="wordExamCorrectCount">0</b><span>正解</span></div>
+        <div class="history-stat"><b id="wordExamWrongCount">0</b><span>不正解</span></div>
+        <div class="history-stat"><b id="wordExamRate">0%</b><span>正答率</span></div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">間違えた問題</div>
+        <div id="wordExamWrongList"></div>
+      </section>
+
+      <section class="card">
+        <button id="retryWordExamButton" class="primary-button">同じ条件でもう一度</button>
+        <button id="reviewWordExamButton" class="secondary-button">間違えた問題を復習</button>
+        <button id="backToExamPageButton" class="secondary-button">試験ページへ戻る</button>
+        <button class="secondary-button" data-route="home">ホームへ戻る</button>
+      </section>
+    </section>
+
+    
+    <section id="page-calcExamSetup" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">計算試験</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="calcExamResumeCard" class="card hidden">
+        <div class="section-label">前回の計算試験</div>
+        <h2>続きから再開できます</h2>
+        <p id="calcExamResumeDetail" class="muted-text"></p>
+        <div class="two-buttons">
+          <button id="resumeCalcExamButton" class="primary-button">続きから</button>
+          <button id="discardCalcExamButton" class="secondary-button no-margin">最初から設定</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題数</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="calcExamCount" value="5" checked><span>5問</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamCount" value="10"><span>10問</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamCount" value="15"><span>15問</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamCount" value="all"><span>全問</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamCount" value="custom"><span>自由入力</span></label>
+        </div>
+        <input id="customCalcExamCount" class="field-input hidden" type="number" min="1" max="100" value="5" placeholder="1〜100">
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題範囲</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="all" checked><span>全分野</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="損益分岐点"><span>損益分岐点</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="工数"><span>工数</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="確率"><span>確率</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="場合の数"><span>場合の数</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="稼働率"><span>稼働率</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="投資回収"><span>投資回収</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="CPU"><span>CPU</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="通信"><span>通信</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="容量"><span>容量</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamTopic" value="SQL"><span>SQL</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">採点方法</div>
+        <div class="exam-option-grid two-column-options">
+          <label class="exam-option"><input type="radio" name="calcExamScoring" value="instant" checked><span>その場で採点</span></label>
+          <label class="exam-option"><input type="radio" name="calcExamScoring" value="final"><span>最後にまとめて</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <button id="startCalcExamButton" class="primary-button">計算試験を開始</button>
+        <p id="calcExamSetupStatus" class="muted-text small-text"></p>
+      </section>
+    </section>
+
+    <section id="page-calcExam" class="page hidden">
+      <header class="topbar quiz-topbar">
+        <button id="calcExamExitButton" class="icon-button" aria-label="試験を中断">←</button>
+        <div class="quiz-heading">
+          <span id="calcExamTopic" class="pill">計算試験</span>
+          <span id="calcExamProgress" class="progress-text"></span>
+        </div>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div id="calcExamQuestionId" class="calc-question-id"></div>
+        <div id="calcExamQuestionSeed" class="calc-seed-info hidden"></div>
+        <div id="calcExamQuestion" class="question-text"></div>
+
+        <div class="calc-memo-area">
+          <label class="field-label" for="calcExamMemo">途中式・メモ</label>
+          <textarea id="calcExamMemo" class="note-input calc-memo" rows="6" placeholder="ここに自由に途中式を書けます"></textarea>
+        </div>
+
+        <div id="calcExamChoiceArea" class="choice-area"></div>
+        <div id="calcExamAnswerResult" class="answer-result hidden"></div>
+        <button id="calcExamNextButton" class="primary-button hidden">次の問題へ</button>
+      </section>
+
+      <section class="card">
+        <div class="stats-row exam-stats-row">
+          <div><strong id="calcExamAnswered">0</strong><span>解答済み</span></div>
+          <div><strong id="calcExamRemaining">0</strong><span>残り</span></div>
+          <div><strong id="calcExamCurrentRate">0%</strong><span>正答率</span></div>
+          <div><strong id="calcExamElapsed">00:00</strong><span>経過時間</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="page-calcExamResult" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">計算試験結果</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="result-hero">
+        <div class="result-score" id="calcExamScore">0点</div>
+        <div id="calcExamRank" class="result-rank">ランク -</div>
+        <div class="result-summary" id="calcExamSummary"></div>
+        <div class="result-time" id="calcExamResultTime"></div>
+      </section>
+
+      <section class="history-grid">
+        <div class="history-stat"><b id="calcExamCorrectCount">0</b><span>正解</span></div>
+        <div class="history-stat"><b id="calcExamWrongCount">0</b><span>不正解</span></div>
+        <div class="history-stat"><b id="calcExamRate">0%</b><span>正答率</span></div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">間違えた問題</div>
+        <div id="calcExamWrongList"></div>
+      </section>
+
+      <section class="card">
+        <button id="retryCalcExamButton" class="primary-button">同じ条件でもう一度</button>
+        <button id="reviewCalcExamButton" class="secondary-button">間違えた問題を復習</button>
+        <button id="backToExamFromCalcButton" class="secondary-button">試験ページへ戻る</button>
+        <button class="secondary-button" data-route="home">ホームへ戻る</button>
+      </section>
+    </section>
+
+    
+    <section id="page-comprehensiveExamSetup" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">総合試験</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="comprehensiveExamResumeCard" class="card hidden">
+        <div class="section-label">前回の総合試験</div>
+        <h2>続きから再開できます</h2>
+        <p id="comprehensiveExamResumeDetail" class="muted-text"></p>
+        <div class="two-buttons">
+          <button id="resumeComprehensiveExamButton" class="primary-button">続きから</button>
+          <button id="discardComprehensiveExamButton" class="secondary-button no-margin">最初から設定</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題数</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="comprehensiveCount" value="10" checked><span>10問</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCount" value="20"><span>20問</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCount" value="30"><span>30問</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCount" value="50"><span>50問</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCount" value="custom"><span>自由入力</span></label>
+        </div>
+        <input id="customComprehensiveCount" class="field-input hidden" type="number" min="1" max="200" value="10" placeholder="1〜200">
+      </section>
+
+      <section class="card">
+        <div class="section-label">単語：計算の割合</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="comprehensiveRatio" value="100:0"><span>単語のみ</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveRatio" value="70:30"><span>70：30</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveRatio" value="50:50" checked><span>50：50</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveRatio" value="30:70"><span>30：70</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveRatio" value="0:100"><span>計算のみ</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">出題分野</div>
+        <div class="exam-option-grid">
+          <label class="exam-option"><input type="radio" name="comprehensiveCategory" value="all" checked><span>全分野</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCategory" value="ストラテジ系"><span>ストラテジ</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCategory" value="マネジメント系"><span>マネジメント</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveCategory" value="テクノロジ系"><span>テクノロジ</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">採点方法</div>
+        <div class="exam-option-grid two-column-options">
+          <label class="exam-option"><input type="radio" name="comprehensiveScoring" value="instant" checked><span>その場で採点</span></label>
+          <label class="exam-option"><input type="radio" name="comprehensiveScoring" value="final"><span>最後にまとめて</span></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <button id="startComprehensiveExamButton" class="primary-button">総合試験を開始</button>
+        <p id="comprehensiveExamSetupStatus" class="muted-text small-text"></p>
+      </section>
+    </section>
+
+    <section id="page-comprehensiveExam" class="page hidden">
+      <header class="topbar quiz-topbar">
+        <button id="comprehensiveExamExitButton" class="icon-button" aria-label="試験を中断">←</button>
+        <div class="quiz-heading">
+          <span id="comprehensiveExamType" class="pill">総合試験</span>
+          <span id="comprehensiveExamProgress" class="progress-text"></span>
+        </div>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div id="comprehensiveExamQuestionId" class="calc-question-id"></div>
+        <div id="comprehensiveExamQuestionSeed" class="calc-seed-info hidden"></div>
+        <div id="comprehensiveExamQuestion" class="question-text"></div>
+
+        <div id="comprehensiveCalcMemoArea" class="calc-memo-area hidden">
+          <label class="field-label" for="comprehensiveExamMemo">途中式・メモ</label>
+          <textarea id="comprehensiveExamMemo" class="note-input calc-memo" rows="6" placeholder="計算の途中式を自由に書けます"></textarea>
+        </div>
+
+        <div id="comprehensiveExamChoiceArea" class="choice-area"></div>
+        <div id="comprehensiveExamAnswerResult" class="answer-result hidden"></div>
+        <button id="comprehensiveExamNextButton" class="primary-button hidden">次の問題へ</button>
+      </section>
+
+      <section class="card">
+        <div class="stats-row exam-stats-row">
+          <div><strong id="comprehensiveExamAnswered">0</strong><span>解答済み</span></div>
+          <div><strong id="comprehensiveExamRemaining">0</strong><span>残り</span></div>
+          <div><strong id="comprehensiveExamCurrentRate">0%</strong><span>正答率</span></div>
+          <div><strong id="comprehensiveExamElapsed">00:00</strong><span>経過時間</span></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="page-comprehensiveExamResult" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">総合試験結果</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="result-hero">
+        <div class="result-score" id="comprehensiveExamScore">0点</div>
+        <div id="comprehensiveExamRank" class="result-rank">ランク -</div>
+        <div class="result-summary" id="comprehensiveExamSummary"></div>
+        <div class="result-time" id="comprehensiveExamResultTime"></div>
+      </section>
+
+      <section class="history-grid">
+        <div class="history-stat"><b id="comprehensiveExamCorrectCount">0</b><span>正解</span></div>
+        <div class="history-stat"><b id="comprehensiveExamWrongCount">0</b><span>不正解</span></div>
+        <div class="history-stat"><b id="comprehensiveExamRate">0%</b><span>正答率</span></div>
+        <div class="history-stat"><b id="comprehensiveWordRate">0%</b><span>単語正答率</span></div>
+        <div class="history-stat"><b id="comprehensiveCalcRate">0%</b><span>計算正答率</span></div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">間違えた問題</div>
+        <div id="comprehensiveExamWrongList"></div>
+      </section>
+
+      <section class="card">
+        <button id="retryComprehensiveExamButton" class="primary-button">同じ条件でもう一度</button>
+        <button id="reviewComprehensiveExamButton" class="secondary-button">間違えた問題だけ復習</button>
+        <button id="backToExamFromComprehensiveButton" class="secondary-button">試験ページへ戻る</button>
+        <button class="secondary-button" data-route="home">ホームへ戻る</button>
+      </section>
+    </section>
+
+    <section id="page-examMaintenance" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="exam" aria-label="戻る">←</button>
+        <h1 class="topbar-title">試験</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="maintenance-card">
+        <div class="maintenance-icon">🚧</div>
+        <h2>メンテナンス中</h2>
+        <p>計算テストと総合テストは、計算問題の追加後に利用できるようになります。</p>
+        <button class="primary-button" data-route="exam">試験メニューへ戻る</button>
+      </section>
+    </section>
+
+    
+    <section id="page-wordList" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="word" aria-label="戻る">←</button>
+        <h1 class="topbar-title">単語一覧</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <input id="wordSearchInput" class="field-input" type="search" placeholder="単語・意味を検索">
+        <div class="category-filter-grid">
+          <button class="filter-button" data-word-filter="ストラテジ系">ストラテジ</button>
+          <button class="filter-button" data-word-filter="マネジメント系">マネジメント</button>
+          <button class="filter-button" data-word-filter="テクノロジ系">テクノロジ</button>
+          <button class="filter-button active filter-all" data-word-filter="all">全分野</button>
+        </div>
+        <div class="filter-row">
+          <button class="filter-button active" data-word-sort="kana">あいうえお順</button>
+          <button class="filter-button" data-word-sort="alpha">ABC順</button>
+          <button class="filter-button" data-word-sort="favorite">お気に入り</button>
+        </div>
+        <div id="wordListSummary" class="muted-text"></div>
+      </section>
+
+      <section id="wordListContainer"></section>
+    </section>
+
+    
+    <section id="page-history" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="word" aria-label="戻る">←</button>
+        <h1 class="topbar-title">学習履歴</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section id="todayHistoryCard" class="card"></section>
+      <section id="historySummaryGrid" class="history-grid"></section>
+
+      <section class="card">
+        <div class="section-label">カレンダーから確認</div>
+        <input id="historyDateInput" class="field-input" type="date">
+        <div id="selectedDateHistory" class="selected-date-history"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">日別履歴</div>
+        <div id="dailyHistoryList"></div>
+      </section>
+
+      <section class="card danger-card">
+        <div class="section-label">学習データ管理</div>
+        <p class="muted-text">正答率、間違えた問題、日別履歴、続きからの位置をリセットします。お気に入りとメモは残ります。</p>
+        <button id="resetHistoryButton" class="danger-button">学習履歴をリセット</button>
+      </section>
+    </section>
+
+    
+    <section id="page-ranking" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="word" aria-label="戻る">←</button>
+        <h1 class="topbar-title">苦手ランキング</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div class="filter-row">
+          <button class="filter-button active" data-ranking-sort="rate">正答率が低い順</button>
+          <button class="filter-button" data-ranking-sort="wrong">間違い回数順</button>
+        </div>
+        <div class="category-filter-grid">
+          <button class="filter-button" data-ranking-filter="ストラテジ系">ストラテジ</button>
+          <button class="filter-button" data-ranking-filter="マネジメント系">マネジメント</button>
+          <button class="filter-button" data-ranking-filter="テクノロジ系">テクノロジ</button>
+          <button class="filter-button active filter-all" data-ranking-filter="all">全分野</button>
+        </div>
+      </section>
+
+      <section id="rankingList"></section>
+    </section>
+
+    <section id="page-examDate"  class="page hidden placeholder-page">
+      <header class="topbar">
+        <button class="icon-button" data-route="home" aria-label="戻る">←</button>
+        <h1 class="topbar-title">試験日の設定</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+      <section class="card">
+        <label class="field-label" for="examDateInput">試験日</label>
+        <input id="examDateInput" class="field-input" type="date">
+        <button id="saveExamDateButton" class="primary-button">保存</button>
+        <button id="deleteExamDateButton" class="secondary-button">削除</button>
+        <p id="examDateStatus" class="muted-text"></p>
+      </section>
+    </section>
+
+    
+    <section id="page-settings" class="page hidden">
+      <header class="topbar">
+        <button class="icon-button" data-route="home" aria-label="戻る">←</button>
+        <h1 class="topbar-title">設定</h1>
+        <button class="icon-button open-drawer" aria-label="メニューを開く">☰</button>
+      </header>
+
+      <section class="card">
+        <div class="section-label">🏠 ホーム画面に表示</div>
+        <div id="homeVisibilitySettings" class="settings-list">
+          <label class="setting-row">
+            <span>今日のおすすめ</span>
+            <input type="checkbox" data-home-setting="recommended">
+          </label>
+          <label class="setting-row">
+            <span>今日の進捗</span>
+            <input type="checkbox" data-home-setting="progress">
+          </label>
+          <label class="setting-row">
+            <span>試験まであと○日</span>
+            <input type="checkbox" data-home-setting="examCountdown">
+          </label>
+          <label class="setting-row">
+            <span>連続学習</span>
+            <input type="checkbox" data-home-setting="streak">
+          </label>
+          <label class="setting-row">
+            <span>今日間違えた問題</span>
+            <input type="checkbox" data-home-setting="todayWrong">
+          </label>
+          <label class="setting-row">
+            <span>お気に入り</span>
+            <input type="checkbox" data-home-setting="favorites">
+          </label>
+          <label class="setting-row">
+            <span>モード選択</span>
+            <input type="checkbox" data-home-setting="modes">
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">☰ メニューに表示</div>
+        <div id="menuVisibilitySettings" class="settings-list">
+          <label class="setting-row">
+            <span>モード選択</span>
+            <input type="checkbox" data-menu-setting="home">
+          </label>
+          <label class="setting-row">
+            <span>単語一覧</span>
+            <input type="checkbox" data-menu-setting="wordList">
+          </label>
+          <label class="setting-row">
+            <span>学習履歴</span>
+            <input type="checkbox" data-menu-setting="history">
+          </label>
+          <label class="setting-row">
+            <span>苦手ランキング</span>
+            <input type="checkbox" data-menu-setting="ranking">
+          </label>
+          <label class="setting-row">
+            <span>試験日の設定</span>
+            <input type="checkbox" data-menu-setting="examDate">
+          </label>
+          <div class="setting-row fixed-setting-row">
+            <span>設定</span>
+            <span class="fixed-badge">常に表示</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">⇅ ホームの並び順</div>
+        <p class="muted-text small-text">≡ を押したまま動かすか、↑↓ボタンで順番を変更できます。</p>
+        <div id="homeOrderList" class="order-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-label">⇅ メニューの並び順</div>
+        <p class="muted-text small-text">「設定」は安全のため一番下に固定されます。</p>
+        <div id="menuOrderList" class="order-list"></div>
+      </section>
+
+      <section class="card">
+        <button id="saveDisplaySettingsButton" class="primary-button">設定を保存</button>
+        <button id="resetDisplaySettingsButton" class="secondary-button">初期設定に戻す</button>
+        <p id="displaySettingsStatus" class="muted-text small-text"></p>
+      </section>
+
+      <section class="card">
+        <div class="section-label">アプリ情報</div>
+        <h2>Ver3.1-4</h2>
+        <p class="muted-text">ランダム計算問題とシード再現に使う新エンジンの土台を追加しました。</p>
+      </section>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="words.js?v=39"></script>
+  <script src="randomEngine.js?v=39"></script>
+  <script src="problemCode.js?v=39"></script>
+  <script src="templateEngine.js?v=39"></script>
+  <script src="engineStatus.js?v=39"></script>
+  <script src="calculations.js?v=39"></script>
+  <script src="storage.js?v=39"></script>
+  <script src="word.js?v=39"></script>
+  <script src="wordChoice.js?v=39"></script>
+  <script src="quiz.js?v=39"></script>
+  <script src="wordlist.js?v=39"></script>
+  <script src="history.js?v=39"></script>
+  <script src="ranking.js?v=39"></script>
+  <script src="home.js?v=39"></script>
+  <script src="settings.js?v=39"></script>
+  <script src="exam.js?v=39"></script>
+  <script src="calc.js?v=39"></script>
+  <script src="calc_exam.js?v=39"></script>
+  <script src="comprehensive_exam.js?v=39"></script>
+  <script src="router.js?v=39"></script>
+  <script src="drawer.js?v=39"></script>
+  <script src="app.js?v=39"></script>
+</body>
+</html>
